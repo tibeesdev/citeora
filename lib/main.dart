@@ -436,6 +436,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   child: Column(
                     children: [
+                      TextFormField(
+                        controller: TextEditingController(
+                          text:
+                              r'<tml><body>$result${listInputAPA[0]}<i>${listInputAPA[1]}</i>${listInputAPA[2]}</body></html>',
+                        ),
+                      ),
                       RichText(
                         text: TextSpan(
                           text: result,
@@ -453,16 +459,32 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       const SizedBox(height: 12),
+
                       ElevatedButton.icon(
                         onPressed: () {
                           RichClipboardData data = RichClipboardData(
                             html:
-                                '<html><body>$result${listInputAPA[0]}<i>${listInputAPA[1]}</i>${listInputAPA[2]}</body></html>',
+                                '<html><body>' +
+                                result +
+                                listInputAPA[0] +
+                                '<i>' +
+                                listInputAPA[1] +
+                                '</i>' +
+                                listInputAPA[2] +
+                                '</body></html>',
                             text:
-                                '<html><body>$result${listInputAPA[0]}*${listInputAPA[1]}*${listInputAPA[2]}</body></html>',
+                                '<html><body>' +
+                                result +
+                                listInputAPA[0] +
+                                '<i>' +
+                                listInputAPA[1] +
+                                '</i>' +
+                                listInputAPA[2] +
+                                '</body></html>',
                           );
                           // salin
                           RichClipboard.setData(data);
+                          //Clipboard.setData(ClipboardData(text: "<i>data</i>"));
 
                           // tampilkan snackbar
                           ScaffoldMessenger.of(context).showSnackBar(
