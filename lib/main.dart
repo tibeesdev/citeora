@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/services.dart';
-//import 'package:rich_clipboard/rich_clipboard.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,6 +34,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // mapping string untuk dirubah menjadi italic
   Map<String, String> italicMap = {
     // Huruf kapital A-Z
     'A': '\u{1D434}', 'B': '\u{1D435}', 'C': '\u{1D436}', 'D': '\u{1D437}',
@@ -66,12 +67,9 @@ class _MyHomePageState extends State<MyHomePage> {
     '&': '&', '%': '%', '#': '#', '@': '@', '^': '^', '~': '~',
     '`': '`', ' ': ' ',
   };
-  String toItalic(String input) {
-    return input.split('').map((c) => italicMap[c] ?? c).join();
-  }
 
-  // hasil sitasi
-  String result = '';
+  // hasil nama yang sudah dirubah
+  String nama_pengarang_yang_sudah_dirubah = '';
   // list style daftar pustaka
   List<String> listStyle = [
     'APA(Buku)',
@@ -89,15 +87,27 @@ class _MyHomePageState extends State<MyHomePage> {
   // style yang dipilih
   String? selectedStyle = '';
 
-  // list input
-  // list input asli
-  List<String> listInput = [
-    'Tahun Terbit',
-    'Judul',
-    'Kota Publikasi',
-    'Nama Penerbit',
+  // list input APA
+  List listAPABuku = ['Tahun Penerbitan', 'Judul Buku', 'Penerbit'];
+  List<String> listInputAPA = ['', '', ''];
+  // list input untuk nama pengarang (dipakai untuk judul textinput)
+  List<String> namaPengarangListInput = ['Nama Pengarang'];
+  // controller untuk nama pengarang
+  List<TextEditingController> controllerNamaPengarang = [
+    TextEditingController(),
   ];
+  //controller untuk apa style
+  List<TextEditingController> controllerAPAStyle = [];
+  // list nama pengarang (dipakai untuk parding data nama pengarang ke fungsi apastyle)
+  List<String> nama_pengarang = [''];
+  // list input
 
+  // mengubah text menjadi italic
+  String toItalic(String input) {
+    return input.split('').map((c) => italicMap[c] ?? c).join();
+  }
+
+  // mengubah nama pengarang sesuai dengan APA style
   // returnnya adalah string dari nama pengarang yang sudah diubah
   String namaPengarang(List nama_pengarang) {
     String namaPengarang = '';
@@ -173,32 +183,19 @@ class _MyHomePageState extends State<MyHomePage> {
     return namaPengarang;
   }
 
-  List dummyNamaPengarang = [
-    'Amelia Putri Pratama',
-    'Surya Wijaya',
-    'Citra Lestari',
-  ];
+  // buka link
+  void _launchUrl(String link) {
+    final Uri url = Uri.parse(link); // Ganti dengan link kamu
 
-  // list input APA
-  List listAPABuku = ['Tahun Penerbitan', 'Judul Buku', 'Penerbit'];
-  List<String> listInputAPA = ['', '', ''];
-  // list input untuk nama pengarang (dipakai untuk judul textinput)
-  List<String> namaPengarangListInput = ['Nama Pengarang'];
-  // controller untuk nama pengarang
-  List<TextEditingController> controllerNamaPengarang = [
-    TextEditingController(),
-  ];
-  //controller untuk apa style
-  List<TextEditingController> controllerAPAStyle = [];
-  // list nama pengarang (dipakai untuk parding data nama pengarang ke fungsi apastyle)
-  List<String> nama_pengarang = [''];
+    launchUrl(url);
+  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     // buat controller untuk apa style
-    for (var element in listAPABuku) {
+    for (var i in listAPABuku) {
       TextEditingController controller = TextEditingController();
       controllerAPAStyle.add(controller);
     }
@@ -208,53 +205,308 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        leading: Image.asset(
+          'assets/images/Citeora(banner).png',
+          height: 40, // atur tinggi sesuai kebutuhan
+          fit: BoxFit.contain,
+          alignment: Alignment.centerLeft,
+        ),
+        leadingWidth: 1024,
+
+        backgroundColor: Color(0xFFFFFAF2), // primary background color,
+
         actions: [
-          Image.asset(
-            'assets/images/citeora(banner).png',
-            width: 100,
-            height: 100,
-            fit: BoxFit.cover,
-            alignment: Alignment.center,
+          // tombol github
+          TextButton(
+            onPressed: () {
+              // buka url
+              _launchUrl('https://github.com/tibeesdev/citeora');
+            },
+            child: Text(
+              'GitHub',
+              style: TextStyle(
+                color: Color(0xFF24334E),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // dropdown di bagian paling atas
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: DropdownButtonFormField2(
-                items:
-                    listStyle
-                        .map(
-                          (String item) => DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 0, 0, 0),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        )
-                        .toList(),
+      backgroundColor: Color(0xFFFFFAF2),
+      body: SingleChildScrollView(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: 200, maxWidth: 800),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // teks Pembuat daftar pustaka otomatis
+                teksJudul(),
+
+                // teks cara pembuatan
+                teksSubJudul(),
+
+                // bagian input user
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey, width: 1),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            Colors.grey
+                                .withValues(), // Warna bayangan dengan tingkat opasitas
+                        spreadRadius:
+                            1.0, // Seberapa jauh bayangan menyebar dari kotak
+                        blurRadius: 5.0, // Tingkat keburaman bayangan
+                        offset: Offset(
+                          0,
+                          2,
+                        ), // Posisi offset bayangan (horizontal, vertikal)
+                      ),
+                    ],
+                  ),
+
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      children: [
+                        // dropdown di bagian paling atas
+                        dropDownStyleDAPUS(),
+
+                        // list builder khusus untuk nama pengarang
+                        selectedStyle != ''
+                            ? widgetNamaPengarang()
+                            : Container(),
+                        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        // list builder untuk item lain
+
+                        // cek stylenya
+                        selectedStyle == 'APA(Buku)'
+                            ? widgetStyleAPABuku()
+                            : Container(), // ganti kode ini jika mau menambahkan style lain
+                      ],
+                    ),
+                  ),
+                ),
+
+                // bagian salin dapus
+                selectedStyle != '' ? widgetSalin(context) : Container(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding dropDownStyleDAPUS() {
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: DropdownButtonFormField2(
+        alignment: Alignment.center,
+        items:
+            listStyle
+                .map(
+                  (String item) => DropdownMenuItem(
+                    value: item,
+                    child: Text(
+                      item,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 0, 0, 0),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
+                .toList(),
+        onChanged: (value) {
+          setState(() {
+            selectedStyle = value;
+          });
+          if (kDebugMode) {
+            print(value);
+          }
+        },
+        decoration: InputDecoration(
+          labelText: 'Pilih Gaya Penulisan',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.black),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding teksSubJudul() {
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Text(
+        'Pilih gaya penulisan, masukkan data, dan salin daftar pustaka dalam hitungan detik.',
+        style: TextStyle(color: Color(0xFF24334E), fontSize: 20),
+      ),
+    );
+  }
+
+  Padding teksJudul() {
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Text(
+        'Pembuat Daftar Pustaka Otomatis',
+        style: TextStyle(
+          color: Color(0xFF24334E),
+          fontSize: 34,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  ListView widgetNamaPengarang() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: namaPengarangListInput.length,
+      itemBuilder: (context, index) {
+        // buat ccontroller (buat store value dari list, kalo gak pake controller setiap kali ada tambahan nama pengarang, nama pengarang sebelumnya dihapus dari kotak teks)
+        TextEditingController controller = controllerNamaPengarang[index];
+
+        // masukkan value nama pengarang ke dalam controller agar ketika widget berubah isi teks tidak berubah
+        String title = '${namaPengarangListInput[index]}';
+        return Center(
+          child: // jika merupakan input nama pengarang maka tambahakn elevated button untuk opsi tambah pengaran
+              Row(
+            children: [
+              // nama pengarang
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  // gunakan widget focus untuk check apakah text sedang aktif atau tidak
+                  child: Focus(
+                    onFocusChange: (value) {
+                      if (!value) {
+                        // masukkan value nama ke dalam list
+                        nama_pengarang[index] = controller.text;
+                        // panggil fungsi untuk proses nama
+                        setState(() {
+                          nama_pengarang_yang_sudah_dirubah = (namaPengarang(
+                            nama_pengarang,
+                          ));
+                        });
+
+                        if (kDebugMode) {
+                          print('text' + controller.text);
+                        }
+                      }
+                    },
+                    child: TextField(
+                      controller: controller,
+                      onChanged: (value) {
+                        controller.text;
+                      },
+                      decoration: InputDecoration(
+                        labelText: title,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.blue),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // lakukan pengecekan, jika Nama pengarang berada di indeks pertama maka gunakan tombol tambah
+              // jika bukan di indeks terakhir maka gunakan tombol sampah untuk menghapus
+              index == 0
+                  ?
+                  // button tambah nama pengarang
+                  ElevatedButton(
+                    onPressed: () {
+                      // aksi untuk menambah nama pengarang
+                      // menambah input nama pengarang
+                      setState(() {
+                        namaPengarangListInput.add('Nama Pengarang');
+                        controllerNamaPengarang.add(TextEditingController());
+                        nama_pengarang.add('');
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.all(20),
+                      backgroundColor: Colors.white,
+                    ),
+                    child: const Text(
+                      '+',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 0, 0, 0),
+                      ),
+                    ),
+                  )
+                  : // hapus nama pengarang
+                  ElevatedButton(
+                    onPressed: () {
+                      // aksi untuk menambah nama pengarang
+                      // menambah input nama pengarang
+                      namaPengarangListInput.removeAt(index);
+                      nama_pengarang.removeAt(index);
+                      controllerNamaPengarang.removeAt(index);
+                      setState(() {});
+                    },
+                    child: const Icon(Icons.delete),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.all(20),
+                      backgroundColor: const Color.fromARGB(255, 249, 252, 255),
+                    ),
+                  ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  ListView widgetStyleAPABuku() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: listAPABuku.length,
+      itemBuilder: (context, index) {
+        String title = listAPABuku[index];
+        // controller
+        TextEditingController controller = controllerAPAStyle[index];
+        return Center(
+          child: Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: TextField(
                 onChanged: (value) {
+                  // masukkan data dari controller ke dalam list yang berisi string untuk tanggal, judul, dan penerbit
                   setState(() {
-                    selectedStyle = value;
+                    // jika tahun terbit
+                    if (index == 0) {
+                      listInputAPA[index] = ' ($value). ';
+                    } // jika judul buku
+                    else if (index == 1) {
+                      listInputAPA[index] = '$value. ';
+                    } // jika penerbit
+                    else if (index == 2) {
+                      listInputAPA[index] = '$value.';
+                    }
                   });
-                  if (kDebugMode) {
-                    print(value);
-                  }
                 },
+                controller: controller,
                 decoration: InputDecoration(
-                  labelText: 'Pilih Gaya Penulisan',
+                  labelText: title,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(color: Colors.blue),
@@ -262,268 +514,96 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
+          ),
+        );
+      },
+    );
+  }
 
-            // list builder khusus untuk nama pengarang
-            selectedStyle != ''
-                ? ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: namaPengarangListInput.length,
-                  itemBuilder: (context, index) {
-                    // buat ccontroller (buat store value dari list, kalo gak pake controller setiap kali ada tambahan nama pengarang, nama pengarang sebelumnya dihapus dari kotak teks)
-                    TextEditingController controller =
-                        controllerNamaPengarang[index];
-
-                    // masukkan value nama pengarang ke dalam controller agar ketika widget berubah isi teks tidak berubah
-                    String title = '${namaPengarangListInput[index]}';
-                    return Center(
-                      child: // jika merupakan input nama pengarang maka tambahakn elevated button untuk opsi tambah pengaran
-                          Row(
-                        children: [
-                          // nama pengarang
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(10),
-                              // gunakan widget focus untuk check apakah text sedang aktif atau tidak
-                              child: Focus(
-                                onFocusChange: (value) {
-                                  if (!value) {
-                                    // masukkan value nama ke dalam list
-                                    nama_pengarang[index] = controller.text;
-                                    // panggil fungsi untuk proses nama
-                                    setState(() {
-                                      result = (namaPengarang(nama_pengarang));
-                                    });
-
-                                    if (kDebugMode) {
-                                      print('text' + controller.text);
-                                    }
-                                  }
-                                },
-                                child: TextField(
-                                  controller: controller,
-                                  onChanged: (value) {
-                                    controller.text;
-                                  },
-                                  decoration: InputDecoration(
-                                    labelText: title,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          // lakukan pengecekan, jika Nama pengarang berada di indeks terakhir maka gunakan tombol tambah
-                          // jika bukan di indeks terakhir maka gunakan tombol sampah untuk menghapus
-                          index == 0
-                              ?
-                              // button tambah nama pengarang
-                              ElevatedButton(
-                                onPressed: () {
-                                  // aksi untuk menambah nama pengarang
-                                  // menambah input nama pengarang
-                                  setState(() {
-                                    namaPengarangListInput.add(
-                                      'Nama Pengarang',
-                                    );
-                                    controllerNamaPengarang.add(
-                                      TextEditingController(),
-                                    );
-                                    nama_pengarang.add('');
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  padding: EdgeInsets.all(20),
-                                  backgroundColor: const Color.fromARGB(
-                                    255,
-                                    249,
-                                    252,
-                                    255,
-                                  ),
-                                ),
-                                child: const Text(
-                                  '+',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color.fromARGB(255, 0, 0, 0),
-                                  ),
-                                ),
-                              )
-                              : // hapus nama pengarang
-                              ElevatedButton(
-                                onPressed: () {
-                                  // aksi untuk menambah nama pengarang
-                                  // menambah input nama pengarang
-                                  namaPengarangListInput.removeAt(index);
-                                  nama_pengarang.removeAt(index);
-                                  controllerNamaPengarang.removeAt(index);
-                                  setState(() {});
-                                },
-                                child: const Icon(Icons.delete),
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  padding: EdgeInsets.all(20),
-                                  backgroundColor: const Color.fromARGB(
-                                    255,
-                                    249,
-                                    252,
-                                    255,
-                                  ),
-                                ),
-                              ),
-                        ],
-                      ),
-                    );
-                  },
-                )
-                : Container(),
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            // list builder untuk item lain
-            // cek stylenya
-            selectedStyle == 'APA(Buku)'
-                ? ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: listAPABuku.length,
-                  itemBuilder: (context, index) {
-                    String title = listInput[index];
-                    // controller
-                    TextEditingController controller =
-                        controllerAPAStyle[index];
-                    return Center(
-                      child: Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: TextField(
-                            onChanged: (value) {
-                              // masukkan data dari controller ke dalam list yang berisi string untuk tanggal, judul, dan penerbit
-                              setState(() {
-                                // jika tahun terbit
-                                if (index == 0) {
-                                  listInputAPA[index] = ' ($value). ';
-                                } // jika judul buku
-                                else if (index == 1) {
-                                  listInputAPA[index] = '$value. ';
-                                } // jika penerbit
-                                else if (index == 2) {
-                                  listInputAPA[index] = '$value.';
-                                }
-                              });
-                            },
-                            controller: controller,
-                            decoration: InputDecoration(
-                              labelText: title,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Colors.blue),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                )
-                : Container(), // ganti kode ini jika mau menambahkan style lain
-            // tombol buat dapus
-            //  ElevatedButton.icon(
-            //   onPressed: () {
-            //     // assign datanya secara manual
-            //     String tahun_terbit = controllerAPAStyle[0].text;
-
-            //     if (kDebugMode) {
-            //       print(tahun_terbit);
-            //       print(controllerAPAStyle.length);
-            //     }
-            //     if (selectedStyle == 'APA(Buku)') {
-            //       namaPengarang(nama_pengarang);
-            //     }
-            //   },
-            //   label: Text('buat sitasi'),
-            //   icon: Icon(Icons.create),
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: Colors.blueAccent,
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(8),
-            //     ),
-            //     padding: const EdgeInsets.symmetric(
-            //       horizontal: 20,
-            //       vertical: 12,
-            //     ),
-            //   ),
-            // )
-
-            // bagian salin dapus
-            selectedStyle != ''
-                ? Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          text: result,
-                          children: [
-                            // tahun terbit
-                            TextSpan(text: listInputAPA[0]),
-                            TextSpan(
-                              // judul buku di italic kan
-                              text: listInputAPA[1],
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                            ),
-                            // penerbit
-                            TextSpan(text: listInputAPA[2]),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          String text =
-                              result +
-                              listInputAPA[0] +
-                              toItalic(listInputAPA[1]) +
-                              listInputAPA[2];
-                          Clipboard.setData(ClipboardData(text: text));
-                          // tampilkan snackbar
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Text Disalin'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                        label: Text('salin'),
-                        icon: Icon(Icons.copy),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-                : Text('Pilih Style Daftar Pustaka'),
+  Padding widgetSalin(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Container(
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey, width: 1),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          boxShadow: [
+            BoxShadow(
+              color:
+                  Colors.grey
+                      .withValues(), // Warna bayangan dengan tingkat opasitas
+              spreadRadius: 1.0, // Seberapa jauh bayangan menyebar dari kotak
+              blurRadius: 5.0, // Tingkat keburaman bayangan
+              offset: Offset(
+                0,
+                2,
+              ), // Posisi offset bayangan (horizontal, vertikal)
+            ),
           ],
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 800, minWidth: 200),
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: TextField(
+                  textAlign: TextAlign.center,
+                  controller: TextEditingController(
+                    text:
+                        nama_pengarang_yang_sudah_dirubah +
+                        listInputAPA[0] +
+                        toItalic(listInputAPA[1]) +
+                        listInputAPA[2],
+                  ),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.blue),
+                    ),
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    String text =
+                        nama_pengarang_yang_sudah_dirubah +
+                        listInputAPA[0] +
+                        toItalic(listInputAPA[1]) +
+                        listInputAPA[2];
+                    Clipboard.setData(ClipboardData(text: text));
+                    // tampilkan snackbar
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Text Disalin'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  label: Text(
+                    'salin',
+                    style: TextStyle(color: Color(0xFFFFFAF2)),
+                  ),
+                  icon: Icon(Icons.copy, color: Color(0xFFFFFAF2)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF24334E),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

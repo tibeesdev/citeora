@@ -35,9 +35,12 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   dropdown_button2: ^2.3.9
+  url_launcher: ^6.2.6
 
 
-
+# Untuk web
+dependency_overrides:
+  url_launcher_web: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -55,7 +58,7 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - assets/images/
+    - assets/images/Citeora(banner).png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
