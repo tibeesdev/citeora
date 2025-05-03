@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/services.dart';
-import 'package:rich_clipboard/rich_clipboard.dart';
+//import 'package:rich_clipboard/rich_clipboard.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,6 +34,42 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Map<String, String> italicMap = {
+    // Huruf kapital A-Z
+    'A': '\u{1D434}', 'B': '\u{1D435}', 'C': '\u{1D436}', 'D': '\u{1D437}',
+    'E': '\u{1D438}', 'F': '\u{1D439}', 'G': '\u{1D43A}', 'H': '\u{1D43B}',
+    'I': '\u{1D43C}', 'J': '\u{1D43D}', 'K': '\u{1D43E}', 'L': '\u{1D43F}',
+    'M': '\u{1D440}', 'N': '\u{1D441}', 'O': '\u{1D442}', 'P': '\u{1D443}',
+    'Q': '\u{1D444}', 'R': '\u{1D445}', 'S': '\u{1D446}', 'T': '\u{1D447}',
+    'U': '\u{1D448}', 'V': '\u{1D449}', 'W': '\u{1D44A}', 'X': '\u{1D44B}',
+    'Y': '\u{1D44C}', 'Z': '\u{1D44D}',
+
+    // Huruf kecil a-z (kecuali 'h' yang pakai simbol khusus)
+    'a': '\u{1D44E}', 'b': '\u{1D44F}', 'c': '\u{1D450}', 'd': '\u{1D451}',
+    'e': '\u{1D452}', 'f': '\u{1D453}', 'g': '\u{1D454}', 'h': '\u{210E}',
+    'i': '\u{1D456}', 'j': '\u{1D457}', 'k': '\u{1D458}', 'l': '\u{1D459}',
+    'm': '\u{1D45A}', 'n': '\u{1D45B}', 'o': '\u{1D45C}', 'p': '\u{1D45D}',
+    'q': '\u{1D45E}', 'r': '\u{1D45F}', 's': '\u{1D460}', 't': '\u{1D461}',
+    'u': '\u{1D462}', 'v': '\u{1D463}', 'w': '\u{1D464}', 'x': '\u{1D465}',
+    'y': '\u{1D466}', 'z': '\u{1D467}',
+
+    // Angka 0–9 (dalam Mathematical Bold Italic — paling mirip dengan italic)
+    '0': '\u{1D7CE}', '1': '\u{1D7CF}', '2': '\u{1D7D0}', '3': '\u{1D7D1}',
+    '4': '\u{1D7D2}', '5': '\u{1D7D3}', '6': '\u{1D7D4}', '7': '\u{1D7D5}',
+    '8': '\u{1D7D6}', '9': '\u{1D7D7}',
+
+    // Tanda baca (tidak ada versi italic resmi, fallback ke karakter biasa)
+    '.': '.', ',': ',', '!': '!', '?': '?', ':': ':', ';': ';',
+    '\'': '\'', '"': '"', '(': '(', ')': ')', '[': '[', ']': ']',
+    '{': '{', '}': '}', '<': '<', '>': '>', '/': '/', '\\': '\\',
+    '|': '|', '-': '-', '_': '_', '+': '+', '=': '=', '*': '*',
+    '&': '&', '%': '%', '#': '#', '@': '@', '^': '^', '~': '~',
+    '`': '`', ' ': ' ',
+  };
+  String toItalic(String input) {
+    return input.split('').map((c) => italicMap[c] ?? c).join();
+  }
+
   // hasil sitasi
   String result = '';
   // list style daftar pustaka
@@ -436,12 +472,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   child: Column(
                     children: [
-                      TextFormField(
-                        controller: TextEditingController(
-                          text:
-                              r'<tml><body>$result${listInputAPA[0]}<i>${listInputAPA[1]}</i>${listInputAPA[2]}</body></html>',
-                        ),
-                      ),
                       RichText(
                         text: TextSpan(
                           text: result,
@@ -462,30 +492,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       ElevatedButton.icon(
                         onPressed: () {
-                          RichClipboardData data = RichClipboardData(
-                            html:
-                                '<html><body>' +
-                                result +
-                                listInputAPA[0] +
-                                '<i>' +
-                                listInputAPA[1] +
-                                '</i>' +
-                                listInputAPA[2] +
-                                '</body></html>',
-                            text:
-                                '<html><body>' +
-                                result +
-                                listInputAPA[0] +
-                                '<i>' +
-                                listInputAPA[1] +
-                                '</i>' +
-                                listInputAPA[2] +
-                                '</body></html>',
-                          );
-                          // salin
-                          RichClipboard.setData(data);
-                          //Clipboard.setData(ClipboardData(text: "<i>data</i>"));
-
+                          String text =
+                              result +
+                              listInputAPA[0] +
+                              toItalic(listInputAPA[1]) +
+                              listInputAPA[2];
+                          Clipboard.setData(ClipboardData(text: text));
                           // tampilkan snackbar
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
