@@ -213,7 +213,9 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         leadingWidth: 1024,
 
-        backgroundColor: Color(0xFFFFFAF2), // primary background color,
+        backgroundColor: Color(0xFFF8F5F0), // primary background color,
+        surfaceTintColor:
+            Colors.transparent, // cegah perubahan warna ketika scroll
 
         actions: [
           // tombol github
@@ -232,7 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      backgroundColor: Color(0xFFFFFAF2),
+      backgroundColor: Color(0xFFF8F5F0),
       body: SingleChildScrollView(
         child: Center(
           child: ConstrainedBox(
@@ -284,7 +286,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         // list builder untuk item lain
 
                         // cek stylenya
-                        selectedStyle == 'APA(Buku)'
+                        selectedStyle ==
+                                listStyle[0] // APA buku
                             ? widgetStyleAPABuku()
                             : Container(), // ganti kode ini jika mau menambahkan style lain
                       ],
@@ -485,32 +488,30 @@ class _MyHomePageState extends State<MyHomePage> {
         // controller
         TextEditingController controller = controllerAPAStyle[index];
         return Center(
-          child: Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextField(
-                onChanged: (value) {
-                  // masukkan data dari controller ke dalam list yang berisi string untuk tanggal, judul, dan penerbit
-                  setState(() {
-                    // jika tahun terbit
-                    if (index == 0) {
-                      listInputAPA[index] = ' ($value). ';
-                    } // jika judul buku
-                    else if (index == 1) {
-                      listInputAPA[index] = '$value. ';
-                    } // jika penerbit
-                    else if (index == 2) {
-                      listInputAPA[index] = '$value.';
-                    }
-                  });
-                },
-                controller: controller,
-                decoration: InputDecoration(
-                  labelText: title,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue),
-                  ),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: TextField(
+              onChanged: (value) {
+                // masukkan data dari controller ke dalam list yang berisi string untuk tanggal, judul, dan penerbit
+                setState(() {
+                  // jika tahun terbit
+                  if (index == 0) {
+                    listInputAPA[index] = ' ($value). ';
+                  } // jika judul buku
+                  else if (index == 1) {
+                    listInputAPA[index] = '$value. ';
+                  } // jika penerbit
+                  else if (index == 2) {
+                    listInputAPA[index] = '$value.';
+                  }
+                });
+              },
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: title,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.blue),
                 ),
               ),
             ),
