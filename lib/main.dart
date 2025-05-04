@@ -73,7 +73,8 @@ class _MyHomePageState extends State<MyHomePage> {
   // list style daftar pustaka
   List<String> get listStyle => [
     'APA(Buku)',
-    'APA(Organisasi)',
+    'APA(Buku/Organisasi)',
+    'APA(Buku/Terjemahan)',
     'APA(Jurnal)',
     'MLA',
     'Chicago',
@@ -85,17 +86,10 @@ class _MyHomePageState extends State<MyHomePage> {
     'AMA',
   ];
 
+
   // style yang dipilih
   String? selectedStyle = '';
 
-  // list input APA
-  //List listAPABuku = ['Tahun Penerbitan', 'Judul Buku', 'Penerbit'];
-  List listAPAOrganisasiBuku = [
-    'Nama Organisasi',
-    'Tahun Penerbitan',
-    'Judul Buku',
-    'Penerbit',
-  ];
   // mappping pilihan style dengan data yang diperlukan untuk diinput
   Map<String, List<String>> get mapStyletoInput => {
     listStyle[0]: [
@@ -109,6 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
       'Judul Buku',
       'Penerbit',
     ], // apa style untuk buku yang diterbitkan oleh organisasi
+
+    listStyle[2]: [],
   };
 
   // list string untuk input (karena inisiasi tidak mungkin di dalam builder)
@@ -260,6 +256,8 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       formatted_string =
           listStyle[0] + listStyle[1] + listStyle[2] + listStyle[3];
+    } else if (style == listStyle[2]) {
+      //APA style untuk buku terjemahan
     }
 
     return formatted_string; // return string yang sudah di format
