@@ -86,7 +86,6 @@ class _MyHomePageState extends State<MyHomePage> {
     'AMA',
   ];
 
-
   // style yang dipilih
   String? selectedStyle = '';
 
@@ -143,14 +142,14 @@ class _MyHomePageState extends State<MyHomePage> {
         print(nama_pengarang);
       }
 
-      // cek jumlah pengarang jika lebih dari  1
-      if (nama_pengarang.length > 2) {
+      // cek jumlah pengarang jika 3 atau lebih
+      if (nama_pengarang.length > 3) {
         // jika lebih dari 3 orang
         // loop setiap nama pengarang
         for (String element in nama_pengarang) {
           // split nama pengarang dengan spasi
           List nama = element.split(" ");
-          // ambil nama belakang pengaran
+          // ambil nama belakang pengarang
           String nama_pengarang_dibalik = nama[nama.length - 1] + ',';
           // ambil inisial nama
           String inisial_nama = '';
@@ -165,26 +164,48 @@ class _MyHomePageState extends State<MyHomePage> {
             namaPengarang += ' ' + nama_pengarang_dibalik + inisial_nama + ',';
           }
         }
-      } else if (nama_pengarang.length == 2) {
+      } else if (nama_pengarang.length == 2 || nama_pengarang.length == 3) {
         // jika lebih 1 tapi tidak lebih dari 3
         // loop setiap nama pengarang
+
         for (String element in nama_pengarang) {
-          // split nama pengarang dengan spasi
-          List nama = element.split(" ");
-          // ambil nama belakang pengaran
-          String nama_pengarang_dibalik = nama[nama.length - 1] + ',';
-          // ambil inisial nama
-          String inisial_nama = '';
-          for (var i = 0; i < nama.length - 1; i++) {
-            inisial_nama += ' ${nama[i][0]}.';
-          }
-          // cek jika namanya merupakan indeks terakhir agar bisa ditambahkan tanda "&"
-          if (element == nama_pengarang[nama_pengarang.length - 1]) {
-            // jika data di indeks terkahir
-            namaPengarang += ' dan ' + nama_pengarang_dibalik + inisial_nama;
+          List nama = [];
+          if (element == nama_pengarang[0]) {
+            // jika merupakan penulis pertama maka balik namanya
+            // split nama pengarang dengan spasi
+            nama = element.split(" ");
+            // ambil nama belakang pengaran
+            String nama_belakang = nama[nama.length - 1] + ',';
+            // ambil nama sisanya
+            for (var i = 0; i < nama.length - 1; i++) {
+              nama_belakang += ' ${nama[i]}.';
+            }
+            //nama.add(nama_belakang);
+            namaPengarang += nama_belakang;
+          } else if (element == nama_pengarang[nama_pengarang.length - 1]) {
+            // jika penulis terakhir
+            String nama_penulis_terakhir = ', dan ' + element + '.';
+            //nama.add(nama_penulis_terakhir);
+            namaPengarang += nama_penulis_terakhir;
           } else {
-            namaPengarang += ' ' + nama_pengarang_dibalik + inisial_nama + ',';
+            // jika bukan penulis pertama dan bukan nama terakhir
+            String nama_pengarang_tengah = ' ' + element + '.';
+            //nama.add(nama_pengarang_tengah);
+            namaPengarang += nama_pengarang_tengah;
           }
+
+          // // ambil nama depan pengarang
+          // String inisial_nama = '';
+          // for (var i = 0; i < nama.length - 1; i++) {
+          //   inisial_nama += ' ${nama[i]}.';
+          // }
+          // // cek jika namanya merupakan indeks terakhir agar bisa ditambahkan tanda "&"
+          // if (element == nama_pengarang[nama_pengarang.length - 1]) {
+          //   // jika data di indeks terkahir
+          //   namaPengarang += ' dan ' + nama_pengarang_dibalik + inisial_nama;
+          // } else {
+          //   namaPengarang += ' ' + nama_pengarang_dibalik + inisial_nama + ',';
+          // }
         }
       }
       // jika pengarang hanya 1
@@ -193,14 +214,14 @@ class _MyHomePageState extends State<MyHomePage> {
         // split nama
         List nama = element.split(' ');
         if (nama.length != 0) {
-          // inisial nama
+          // nama depan pengarang
           String inisial_nama = '';
           for (var i = 0; i < nama.length - 1; i++) {
-            inisial_nama += ' ${nama[i][0]}.';
+            inisial_nama += '${nama[i]}.';
           }
 
           // masukkan nama ke variabel
-          namaPengarang = nama[nama.length - 1] + inisial_nama;
+          namaPengarang = nama[nama.length - 1] + ',' + ' ' + inisial_nama;
         }
       }
       if (kDebugMode) {
