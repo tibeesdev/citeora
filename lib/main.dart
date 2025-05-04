@@ -73,6 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // list style daftar pustaka
   List<String> get listStyle => [
     'APA(Buku)',
+    'APA(Organisasi)',
     'APA(Jurnal)',
     'MLA',
     'Chicago',
@@ -111,8 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
   };
 
   // list string untuk input (karena inisiasi tidak mungkin di dalam builder)
-  List<String> listInputAPA = []; //['', '', ''];
-  List<String> listInputAPAOrganisasi = ['', '', '', ''];
+  List<String> listInput = []; //['', '', ''];
   // list input untuk nama pengarang (dipakai untuk judul textinput)
   List<String> namaPengarangListInput = ['Nama Pengarang'];
 
@@ -221,11 +221,54 @@ class _MyHomePageState extends State<MyHomePage> {
     launchUrl(url);
   }
 
+  // format string sesuai dengan gaya
+  String formatted_string = '';
+  String formatString(String style, String value, int index) {
+    // style adalah style dapus yang dipilih user
+    // value adalah input user di index tertentu
+    // index adalah index yang dipilih user
+    if (style == listStyle[0]) {
+      // user memilih style apa untuk buku
+      if (index == 0) {
+        listInput[index] = ' ($value). ';
+      } // jika judul buku
+      else if (index == 1) {
+        listInput[index] = '$value. ';
+      } // jika penerbit
+      else if (index == 2) {
+        listInput[index] = '$value.';
+      }
+
+      formatted_string = listStyle[0] + listStyle[1] + listStyle[2];
+    } else if (style == listStyle[1]) {
+      // user memilih style apa jika bukunya dipublish organisasi
+
+      if (index == 0) {
+        // organisasi penulis buku
+        listInput[index] = '$value. ';
+      } // jika judul buku
+      else if (index == 1) {
+        // tahun terbit
+        listInput[index] = '($value). ';
+      } // jika penerbit
+      else if (index == 2) {
+        // judul buku
+        listInput[index] = toItalic(value) + '. ';
+      } else if (index == 3) {
+        // penerbit
+        listInput[index] = '$value.';
+      }
+      formatted_string =
+          listStyle[0] + listStyle[1] + listStyle[2] + listStyle[3];
+    }
+
+    return formatted_string; // return string yang sudah di format
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
   }
 
   @override
@@ -306,7 +349,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         dropDownStyleDAPUS(),
 
                         // list builder khusus untuk nama pengarang
-                        selectedStyle != ''
+                        selectedStyle == listStyle[0]
                             ? widgetNamaPengarang()
                             : Container(),
                         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,6 +360,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                 listStyle[0] // APA buku
                             ? widgetStyleAPABuku()
                             : Container(), // ganti kode ini jika mau menambahkan style lain
+                        selectedStyle == listStyle[1]
+                            ? widgetStyleAPABuku()
+                            : Container(), // APA Buku dari organisasi
                       ],
                     ),
                   ),
@@ -359,19 +405,16 @@ class _MyHomePageState extends State<MyHomePage> {
             selectedStyle = value;
           });
 
-          if (value == listStyle[0]) {
-            // style yang dipilih APA(buku)
-            // inisiasi controller
-            // hapus semua value list
-            listInputAPA = [];
-            for (var i = 0; i < mapStyletoInput[value]!.length; i++) {
-              inputController.add(
-                TextEditingController(),
-              ); // inisiasi controller
-              // tambah string kosong
-              listInputAPA.add('');
-            }
+          // style yang dipilih APA(buku)
+          // inisiasi controller
+          // hapus semua value list
+          listInput = [];
+          for (var i = 0; i < mapStyletoInput[value]!.length; i++) {
+            inputController.add(TextEditingController()); // inisiasi controller
+            // tambah string kosong
+            listInput.add('');
           }
+
           if (kDebugMode) {
             print(value);
           }
@@ -535,16 +578,17 @@ class _MyHomePageState extends State<MyHomePage> {
               onChanged: (value) {
                 // masukkan data dari controller ke dalam list yang berisi string untuk tanggal, judul, dan penerbit
                 setState(() {
+                  formatString(selectedStyle!, value, index);
                   // jika tahun terbit
-                  if (index == 0) {
-                    listInputAPA[index] = ' ($value). ';
-                  } // jika judul buku
-                  else if (index == 1) {
-                    listInputAPA[index] = '$value. ';
-                  } // jika penerbit
-                  else if (index == 2) {
-                    listInputAPA[index] = '$value.';
-                  }
+                  // if (index == 0) {
+                  //   listInput[index] = ' ($value). ';
+                  // } // jika judul buku
+                  // else if (index == 1) {
+                  //   listInput[index] = '$value. ';
+                  // } // jika penerbit
+                  // else if (index == 2) {
+                  //   listInput[index] = '$value.';
+                  // }
                 });
               },
               controller: controller,
@@ -563,6 +607,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Padding widgetSalin(BuildContext context) {
+    String result = '';
+    if (selectedStyle == listStyle[0]) {
+      // style apa Buku
+      result =
+          nama_pengarang_yang_sudah_dirubah +
+          listInput[0] +
+          toItalic(listInput[1]) +
+          listInput[2];
+    } else if (selectedStyle == listStyle[1]) {
+      // jika user memilih style apa buku yang diterbitkan organisasi
+      result = listInput[0] + listInput[1] + listInput[2] + listInput[3];
+    }
     return Padding(
       padding: EdgeInsets.all(10),
       child: Container(
@@ -593,13 +649,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: EdgeInsets.all(10),
                 child: TextField(
                   textAlign: TextAlign.center,
-                  controller: TextEditingController(
-                    text:
-                        nama_pengarang_yang_sudah_dirubah +
-                        listInputAPA[0] +
-                        toItalic(listInputAPA[1]) +
-                        listInputAPA[2],
-                  ),
+                  controller: TextEditingController(text: result),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -613,11 +663,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: EdgeInsets.all(10),
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    String text =
-                        nama_pengarang_yang_sudah_dirubah +
-                        listInputAPA[0] +
-                        toItalic(listInputAPA[1]) +
-                        listInputAPA[2];
+                    String text = result;
                     Clipboard.setData(ClipboardData(text: text));
                     // tampilkan snackbar
                     ScaffoldMessenger.of(context).showSnackBar(
