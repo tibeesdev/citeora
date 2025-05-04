@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // hasil nama yang sudah dirubah
   String nama_pengarang_yang_sudah_dirubah = '';
   // list style daftar pustaka
-  List<String> listStyle = [
+  List<String> get listStyle => [
     'APA(Buku)',
     'APA(Jurnal)',
     'MLA',
@@ -88,16 +88,42 @@ class _MyHomePageState extends State<MyHomePage> {
   String? selectedStyle = '';
 
   // list input APA
-  List listAPABuku = ['Tahun Penerbitan', 'Judul Buku', 'Penerbit'];
-  List<String> listInputAPA = ['', '', ''];
+  //List listAPABuku = ['Tahun Penerbitan', 'Judul Buku', 'Penerbit'];
+  List listAPAOrganisasiBuku = [
+    'Nama Organisasi',
+    'Tahun Penerbitan',
+    'Judul Buku',
+    'Penerbit',
+  ];
+  // mappping pilihan style dengan data yang diperlukan untuk diinput
+  Map<String, List<String>> get mapStyletoInput => {
+    listStyle[0]: [
+      'Tahun Penerbitan',
+      'Judul Buku',
+      'Penerbit',
+    ], // APA style untuk buku
+    listStyle[1]: [
+      'Nama Organisasi',
+      'Tahun Penerbitan',
+      'Judul Buku',
+      'Penerbit',
+    ], // apa style untuk buku yang diterbitkan oleh organisasi
+  };
+
+  // list string untuk input (karena inisiasi tidak mungkin di dalam builder)
+  List<String> listInputAPA = []; //['', '', ''];
+  List<String> listInputAPAOrganisasi = ['', '', '', ''];
   // list input untuk nama pengarang (dipakai untuk judul textinput)
   List<String> namaPengarangListInput = ['Nama Pengarang'];
+
+  // controller
+  //global input controller untuk input data mengenai dapus
+  List<TextEditingController> inputController = [];
   // controller untuk nama pengarang
   List<TextEditingController> controllerNamaPengarang = [
     TextEditingController(),
   ];
-  //controller untuk apa style
-  List<TextEditingController> controllerAPAStyle = [];
+
   // list nama pengarang (dipakai untuk parding data nama pengarang ke fungsi apastyle)
   List<String> nama_pengarang = [''];
   // list input
@@ -112,8 +138,11 @@ class _MyHomePageState extends State<MyHomePage> {
   String namaPengarang(List nama_pengarang) {
     String namaPengarang = '';
     if (nama_pengarang.length != 0) {
-      // bersihkan isi list nama
-      nama_pengarang.removeWhere((item) => item.length == 0);
+      // bersihkan isi list nama jika data nama pengarang lebih dari 1 tetapi ada string yang kosong
+      if (nama_pengarang.length > 1) {
+        nama_pengarang.removeWhere((item) => item.length == 0);
+      }
+
       if (kDebugMode) {
         print(nama_pengarang);
       }
@@ -167,14 +196,16 @@ class _MyHomePageState extends State<MyHomePage> {
         String element = nama_pengarang[0];
         // split nama
         List nama = element.split(' ');
-        // inisial nama
-        String inisial_nama = '';
-        for (var i = 0; i < nama.length - 1; i++) {
-          inisial_nama += ' ${nama[i][0]}.';
-        }
+        if (nama.length != 0) {
+          // inisial nama
+          String inisial_nama = '';
+          for (var i = 0; i < nama.length - 1; i++) {
+            inisial_nama += ' ${nama[i][0]}.';
+          }
 
-        // masukkan nama ke variabel
-        namaPengarang = nama[nama.length - 1] + inisial_nama;
+          // masukkan nama ke variabel
+          namaPengarang = nama[nama.length - 1] + inisial_nama;
+        }
       }
       if (kDebugMode) {
         print('nama pengarang' + namaPengarang);
@@ -194,11 +225,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // buat controller untuk apa style
-    for (var i in listAPABuku) {
-      TextEditingController controller = TextEditingController();
-      controllerAPAStyle.add(controller);
-    }
+
   }
 
   @override
@@ -331,6 +358,20 @@ class _MyHomePageState extends State<MyHomePage> {
           setState(() {
             selectedStyle = value;
           });
+
+          if (value == listStyle[0]) {
+            // style yang dipilih APA(buku)
+            // inisiasi controller
+            // hapus semua value list
+            listInputAPA = [];
+            for (var i = 0; i < mapStyletoInput[value]!.length; i++) {
+              inputController.add(
+                TextEditingController(),
+              ); // inisiasi controller
+              // tambah string kosong
+              listInputAPA.add('');
+            }
+          }
           if (kDebugMode) {
             print(value);
           }
@@ -482,11 +523,11 @@ class _MyHomePageState extends State<MyHomePage> {
   ListView widgetStyleAPABuku() {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: listAPABuku.length,
+      itemCount: mapStyletoInput[selectedStyle]!.length, // ambil list dari key
       itemBuilder: (context, index) {
-        String title = listAPABuku[index];
+        String title = mapStyletoInput[selectedStyle]![index];
         // controller
-        TextEditingController controller = controllerAPAStyle[index];
+        TextEditingController controller = inputController[index];
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(10),
