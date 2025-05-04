@@ -94,12 +94,14 @@ class _MyHomePageState extends State<MyHomePage> {
     listStyle[0]: [
       'Tahun Penerbitan',
       'Judul Buku',
+      'Kota Penerbit',
       'Penerbit',
     ], // APA style untuk buku
     listStyle[1]: [
       'Nama Organisasi',
       'Tahun Penerbitan',
       'Judul Buku',
+      'Kota Penerbit',
       'Penerbit',
     ], // apa style untuk buku yang diterbitkan oleh organisasi
 
@@ -253,10 +255,13 @@ class _MyHomePageState extends State<MyHomePage> {
         listInput[index] = '$value. ';
       } // jika penerbit
       else if (index == 2) {
+        listInput[index] = '$value: ';
+      } else if (index == 3) {
         listInput[index] = '$value.';
       }
 
-      formatted_string = listStyle[0] + listStyle[1] + listStyle[2];
+      formatted_string =
+          listInput[0] + listInput[1] + listInput[2] + listInput[3];
     } else if (style == listStyle[1]) {
       // user memilih style apa jika bukunya dipublish organisasi
 
@@ -273,10 +278,17 @@ class _MyHomePageState extends State<MyHomePage> {
         listInput[index] = toItalic(value) + '. ';
       } else if (index == 3) {
         // penerbit
+        listInput[index] = '$value: ';
+      } else if (index == 4) {
+        // penerbit
         listInput[index] = '$value.';
       }
       formatted_string =
-          listStyle[0] + listStyle[1] + listStyle[2] + listStyle[3];
+          listInput[0] +
+          listInput[1] +
+          listInput[2] +
+          listInput[3] +
+          listInput[4];
     } else if (style == listStyle[2]) {
       //APA style untuk buku terjemahan
     }
@@ -627,17 +639,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Padding widgetSalin(BuildContext context) {
     String result = '';
-    if (selectedStyle == listStyle[0]) {
-      // style apa Buku
-      result =
-          nama_pengarang_yang_sudah_dirubah +
-          listInput[0] +
-          toItalic(listInput[1]) +
-          listInput[2];
-    } else if (selectedStyle == listStyle[1]) {
-      // jika user memilih style apa buku yang diterbitkan organisasi
-      result = listInput[0] + listInput[1] + listInput[2] + listInput[3];
-    }
+    result = nama_pengarang_yang_sudah_dirubah + formatted_string;
+
     return Padding(
       padding: EdgeInsets.all(10),
       child: Container(
