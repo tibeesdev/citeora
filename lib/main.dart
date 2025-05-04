@@ -105,7 +105,14 @@ class _MyHomePageState extends State<MyHomePage> {
       'Penerbit',
     ], // apa style untuk buku yang diterbitkan oleh organisasi
 
-    listStyle[2]: [],
+    listStyle[2]: [
+      // APA style untuk buku terjemahan
+      'Tahun Penerbitan',
+      'Judul Buku',
+      'Penerjemah',
+      'Kota Penerbit',
+      'Penerbit (Terjemahan)',
+    ],
   };
 
   // list string untuk input (karena inisiasi tidak mungkin di dalam builder)
@@ -277,7 +284,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // judul buku
         listInput[index] = toItalic(value) + '. ';
       } else if (index == 3) {
-        // penerbit
+        // kota penerbit
         listInput[index] = '$value: ';
       } else if (index == 4) {
         // penerbit
@@ -290,7 +297,30 @@ class _MyHomePageState extends State<MyHomePage> {
           listInput[3] +
           listInput[4];
     } else if (style == listStyle[2]) {
+      print('object');
       //APA style untuk buku terjemahan
+      if (index == 0) {
+        //Tahun Penerbitan
+        listInput[index] = '($value). ';
+      } else if (index == 1) {
+        // judul buku
+        listInput[index] = toItalic(value) + '. ';
+      } else if (index == 2) {
+        listInput[index] = '($value, Penerjemah). ';
+      } else if (index == 3) {
+        // kota penerbit
+        listInput[index] = '$value: ';
+      } else if (index == 4) {
+        // penerbit
+        listInput[index] = '$value.';
+      }
+
+      formatted_string =
+          listInput[0] +
+          listInput[1] +
+          listInput[2] +
+          listInput[3] +
+          listInput[4];
     }
 
     return formatted_string; // return string yang sudah di format
@@ -380,7 +410,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         dropDownStyleDAPUS(),
 
                         // list builder khusus untuk nama pengarang
-                        selectedStyle == listStyle[0]
+                        selectedStyle == listStyle[0] ||
+                                selectedStyle == listStyle[2]
                             ? widgetNamaPengarang()
                             : Container(),
                         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -394,6 +425,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         selectedStyle == listStyle[1]
                             ? widgetStyleAPABuku()
                             : Container(), // APA Buku dari organisasi
+                        selectedStyle == listStyle[2]
+                            ? widgetStyleAPABuku()
+                            : Container(), // APA buku terjemahan
                       ],
                     ),
                   ),
