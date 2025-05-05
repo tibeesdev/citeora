@@ -108,10 +108,21 @@ class _MyHomePageState extends State<MyHomePage> {
     listStyle[2]: [
       // APA style untuk buku terjemahan
       'Tahun Penerbitan',
-      'Judul Buku',
+      'Judul Buku (Terjemahan)',
       'Penerjemah',
       'Kota Penerbit',
       'Penerbit (Terjemahan)',
+    ],
+
+    listStyle[3]: [
+      // APA style untuk jurnal
+      'Tahun Penerbitan',
+      'Judul Artikel',
+      'Nama Jurnal',
+      'volume',
+      'Isu atau Nomor',
+      'Halaman(1-5)',
+      'Tautan (opsional)',
     ],
   };
 
@@ -139,105 +150,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // mengubah nama pengarang sesuai dengan APA style
   // returnnya adalah string dari nama pengarang yang sudah diubah
-  String namaPengarang(List nama_pengarang) {
-    String namaPengarang = '';
-    if (nama_pengarang.length != 0) {
-      // bersihkan isi list nama jika data nama pengarang lebih dari 1 tetapi ada string yang kosong
-      if (nama_pengarang.length > 1) {
-        nama_pengarang.removeWhere((item) => item.length == 0);
-      }
+  String formatAPAAuthors(List<String> authors) {
+    // Ubah setiap nama menjadi format: Nama Belakang, Inisial Nama Depan
+    List<String> formatted =
+        authors.map((fullName) {
+          List<String> parts = fullName.trim().split(' ');
+          if (parts.length == 1)
+            return fullName; // Nama tunggal, kembalikan apa adanya
+          String lastName = parts.last;
+          String initials = parts
+              .sublist(0, parts.length - 1)
+              .map((name) => '${name[0].toUpperCase()}.')
+              .join(' ');
+          return '$lastName, $initials';
+        }).toList();
 
-      if (kDebugMode) {
-        print(nama_pengarang);
-      }
-
-      // cek jumlah pengarang jika 3 atau lebih
-      if (nama_pengarang.length > 3) {
-        // jika lebih dari 3 orang
-        // loop setiap nama pengarang
-        for (String element in nama_pengarang) {
-          // split nama pengarang dengan spasi
-          List nama = element.split(" ");
-          // ambil nama belakang pengarang
-          String nama_pengarang_dibalik = nama[nama.length - 1] + ',';
-          // ambil inisial nama
-          String inisial_nama = '';
-          for (var i = 0; i < nama.length - 1; i++) {
-            inisial_nama += ' ${nama[i][0]}.';
-          }
-          // cek jika namanya merupakan indeks terakhir agar bisa ditambahkan tanda "&"
-          if (element == nama_pengarang[nama_pengarang.length - 1]) {
-            // jika data di indeks terkahir
-            namaPengarang += ' & ' + nama_pengarang_dibalik + inisial_nama;
-          } else {
-            namaPengarang += ' ' + nama_pengarang_dibalik + inisial_nama + ',';
-          }
-        }
-      } else if (nama_pengarang.length == 2 || nama_pengarang.length == 3) {
-        // jika lebih 1 tapi tidak lebih dari 3
-        // loop setiap nama pengarang
-
-        for (String element in nama_pengarang) {
-          List nama = [];
-          if (element == nama_pengarang[0]) {
-            // jika merupakan penulis pertama maka balik namanya
-            // split nama pengarang dengan spasi
-            nama = element.split(" ");
-            // ambil nama belakang pengaran
-            String nama_belakang = nama[nama.length - 1] + ',';
-            // ambil nama sisanya
-            for (var i = 0; i < nama.length - 1; i++) {
-              nama_belakang += ' ${nama[i]}.';
-            }
-            //nama.add(nama_belakang);
-            namaPengarang += nama_belakang;
-          } else if (element == nama_pengarang[nama_pengarang.length - 1]) {
-            // jika penulis terakhir
-            String nama_penulis_terakhir = ', dan ' + element + '.';
-            //nama.add(nama_penulis_terakhir);
-            namaPengarang += nama_penulis_terakhir;
-          } else {
-            // jika bukan penulis pertama dan bukan nama terakhir
-            String nama_pengarang_tengah = ' ' + element + '.';
-            //nama.add(nama_pengarang_tengah);
-            namaPengarang += nama_pengarang_tengah;
-          }
-
-          // // ambil nama depan pengarang
-          // String inisial_nama = '';
-          // for (var i = 0; i < nama.length - 1; i++) {
-          //   inisial_nama += ' ${nama[i]}.';
-          // }
-          // // cek jika namanya merupakan indeks terakhir agar bisa ditambahkan tanda "&"
-          // if (element == nama_pengarang[nama_pengarang.length - 1]) {
-          //   // jika data di indeks terkahir
-          //   namaPengarang += ' dan ' + nama_pengarang_dibalik + inisial_nama;
-          // } else {
-          //   namaPengarang += ' ' + nama_pengarang_dibalik + inisial_nama + ',';
-          // }
-        }
-      }
-      // jika pengarang hanya 1
-      else if (nama_pengarang.length == 1) {
-        String element = nama_pengarang[0];
-        // split nama
-        List nama = element.split(' ');
-        if (nama.length != 0) {
-          // nama depan pengarang
-          String inisial_nama = '';
-          for (var i = 0; i < nama.length - 1; i++) {
-            inisial_nama += '${nama[i]}.';
-          }
-
-          // masukkan nama ke variabel
-          namaPengarang = nama[nama.length - 1] + ',' + ' ' + inisial_nama;
-        }
-      }
-      if (kDebugMode) {
-        print('nama pengarang' + namaPengarang);
-      }
+    // Gabungkan berdasarkan jumlah penulis
+    if (formatted.length == 1) {
+      return formatted[0];
+    } else if (formatted.length == 2) {
+      return '${formatted[0]} & ${formatted[1]}';
+    } else if (formatted.length <= 20) {
+      return '${formatted.sublist(0, formatted.length - 1).join(', ')}, & ${formatted.last}';
+    } else {
+      return '${formatted.sublist(0, 19).join(', ')}, ... ${formatted.last}';
     }
-    return namaPengarang;
   }
 
   // buka link
@@ -306,7 +243,17 @@ class _MyHomePageState extends State<MyHomePage> {
         // judul buku
         listInput[index] = toItalic(value) + '. ';
       } else if (index == 2) {
-        listInput[index] = '($value, Penerjemah). ';
+        // penerjemah
+        String new_value = '';
+        for (String item in value.split(' ')) {
+          if (item == value.split(' ')) {
+            /// jika indeks pertama
+            new_value += item[0];
+          } else {
+            new_value += item;
+          }
+        }
+        listInput[index] = '($new_value, Penerjemah). ';
       } else if (index == 3) {
         // kota penerbit
         listInput[index] = '$value: ';
@@ -321,6 +268,41 @@ class _MyHomePageState extends State<MyHomePage> {
           listInput[2] +
           listInput[3] +
           listInput[4];
+    } else if (selectedStyle == listStyle[3]) {
+      // untuk jurnal
+      if (index == 0) {
+        // Tahun Penerbitan
+        listInput[index] = ' ($value). ';
+      } else if (index == 1) {
+        // Judul Artikel
+        listInput[index] = '$value. ';
+      } else if (index == 2) {
+        // Nama Jurnal
+        listInput[index] = toItalic(value) + ', ';
+      } else if (index == 3) {
+        // volume
+        listInput[index] = value;
+      } else if (index == 4) {
+        // isu atau nomor
+        listInput[index] = '($value), ';
+      } else if (index == 5) {
+        // halaman
+        listInput[index] = '$value. ';
+      } else if (index == 6) {
+        // DOI atau url (opsional)
+        if (value.isNotEmpty) {
+          listInput[index] = value;
+        }
+      }
+
+      formatted_string =
+          listInput[0] +
+          listInput[1] +
+          listInput[2] +
+          listInput[3] +
+          listInput[4] +
+          listInput[5] +
+          listInput[6];
     }
 
     return formatted_string; // return string yang sudah di format
@@ -411,7 +393,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
                         // list builder khusus untuk nama pengarang
                         selectedStyle == listStyle[0] ||
-                                selectedStyle == listStyle[2]
+                                selectedStyle == listStyle[2] ||
+                                selectedStyle == listStyle[3]
                             ? widgetNamaPengarang()
                             : Container(),
                         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -428,6 +411,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         selectedStyle == listStyle[2]
                             ? widgetStyleAPABuku()
                             : Container(), // APA buku terjemahan
+                        selectedStyle == listStyle[3]
+                            ? widgetStyleAPABuku()
+                            : Container(), // APA buku dari jurnal
                       ],
                     ),
                   ),
@@ -545,7 +531,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         nama_pengarang[index] = controller.text;
                         // panggil fungsi untuk proses nama
                         setState(() {
-                          nama_pengarang_yang_sudah_dirubah = (namaPengarang(
+                          nama_pengarang_yang_sudah_dirubah = (formatAPAAuthors(
                             nama_pengarang,
                           ));
                         });
