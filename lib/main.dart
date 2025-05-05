@@ -76,6 +76,8 @@ class _MyHomePageState extends State<MyHomePage> {
     'APA(Buku/Organisasi)',
     'APA(Buku/Terjemahan)',
     'APA(Jurnal)',
+    'APA(Jurnal Online)',
+    'APA(E-Book)',
     'MLA',
     'Chicago',
     'IEEE',
@@ -123,6 +125,25 @@ class _MyHomePageState extends State<MyHomePage> {
       'Isu atau Nomor',
       'Halaman(1-5)',
       'Tautan (opsional)',
+    ],
+    listStyle[4]: [
+      // APA style untuk jurnal yang didapat online
+      'Tahun Penerbitan',
+      'Judul Artikel',
+      'Nama Jurnal',
+      'volume',
+      'Isu atau Nomor',
+      'Halaman(1-5)',
+      'DOI atau Tautan',
+    ],
+    listStyle[5]: [
+      // APA style untuk E-Book
+      'Tahun Terbit',
+      'Judul E-Book',
+      'Edisi (Jika Ada)',
+      'Penerbit',
+
+      'Tautan E-Book',
     ],
   };
 
@@ -234,7 +255,6 @@ class _MyHomePageState extends State<MyHomePage> {
           listInput[3] +
           listInput[4];
     } else if (style == listStyle[2]) {
-      print('object');
       //APA style untuk buku terjemahan
       if (index == 0) {
         //Tahun Penerbitan
@@ -268,6 +288,8 @@ class _MyHomePageState extends State<MyHomePage> {
           listInput[2] +
           listInput[3] +
           listInput[4];
+
+      ///jurnal online
     } else if (selectedStyle == listStyle[3]) {
       // untuk jurnal
       if (index == 0) {
@@ -289,10 +311,9 @@ class _MyHomePageState extends State<MyHomePage> {
         // halaman
         listInput[index] = '$value. ';
       } else if (index == 6) {
-        // DOI atau url (opsional)
-        if (value.isNotEmpty) {
-          listInput[index] = value;
-        }
+        // DOI atau url
+
+        listInput[index] = value;
       }
 
       formatted_string =
@@ -303,6 +324,73 @@ class _MyHomePageState extends State<MyHomePage> {
           listInput[4] +
           listInput[5] +
           listInput[6];
+
+      ///jurnal online
+    } else if (selectedStyle == listStyle[4]) {
+      // untuk jurnal
+      if (index == 0) {
+        // Tahun Penerbitan
+        listInput[index] = ' ($value). ';
+      } else if (index == 1) {
+        // Judul Artikel
+        listInput[index] = '$value. ';
+      } else if (index == 2) {
+        // Nama Jurnal
+        listInput[index] = toItalic(value) + ', ';
+      } else if (index == 3) {
+        // volume
+        listInput[index] = value;
+      } else if (index == 4) {
+        // isu atau nomor
+        listInput[index] = '($value), ';
+      } else if (index == 5) {
+        // halaman
+        listInput[index] = '$value. ';
+      } else if (index == 6) {
+        // DOI atau url
+
+        listInput[index] = value;
+      }
+
+      formatted_string =
+          listInput[0] +
+          listInput[1] +
+          listInput[2] +
+          listInput[3] +
+          listInput[4] +
+          listInput[5] +
+          listInput[6];
+
+      // E-book
+    } else if (selectedStyle == listStyle[5]) {
+      if (index == 0) {
+        // Tahun Terbit
+        listInput[index] = ' ($value). ';
+      } else if (index == 1) {
+        // Judul E-Book
+        listInput[index] = toItalic(value);
+      } else if (index == 2) {
+        // Edisi (Jika Ada)
+        if (value.isNotEmpty) {
+          listInput[index] = '(Edisi $value)';
+        } else {
+          listInput[index] = '';
+        }
+        listInput[index] += '. ';
+      } else if (index == 3) {
+        // penerbit
+        listInput[index] = value + '. ';
+      } else if (index == 4) {
+        // Tautan E-Book
+        listInput[index] = value;
+      }
+
+      formatted_string =
+          listInput[0] +
+          listInput[1] +
+          listInput[2] +
+          listInput[3] +
+          listInput[4];
     }
 
     return formatted_string; // return string yang sudah di format
@@ -394,7 +482,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         // list builder khusus untuk nama pengarang
                         selectedStyle == listStyle[0] ||
                                 selectedStyle == listStyle[2] ||
-                                selectedStyle == listStyle[3]
+                                selectedStyle == listStyle[3] ||
+                                selectedStyle == listStyle[4] ||
+                                selectedStyle == listStyle[5]
                             ? widgetNamaPengarang()
                             : Container(),
                         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -412,6 +502,12 @@ class _MyHomePageState extends State<MyHomePage> {
                             ? widgetStyleAPABuku()
                             : Container(), // APA buku terjemahan
                         selectedStyle == listStyle[3]
+                            ? widgetStyleAPABuku()
+                            : Container(), // APA buku dari jurnal
+                        selectedStyle == listStyle[4]
+                            ? widgetStyleAPABuku()
+                            : Container(), // APA buku dari jurnal
+                        selectedStyle == listStyle[5]
                             ? widgetStyleAPABuku()
                             : Container(), // APA buku dari jurnal
                       ],
