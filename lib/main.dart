@@ -79,14 +79,14 @@ class _MyHomePageState extends State<MyHomePage> {
     'APA(Jurnal Online)',
     'APA(E-Book)',
     'APA(Skripsi/Tesis/Disertasi)',
-    'MLA',
-    'Chicago',
-    'IEEE',
-    'Harvard',
-    'Vancouver',
-    'Turabian',
-    'CSE',
-    'AMA',
+    // 'MLA',
+    // 'Chicago',
+    // 'IEEE',
+    // 'Harvard',
+    // 'Vancouver',
+    // 'Turabian',
+    // 'CSE',
+    // 'AMA',
   ];
 
   // style yang dipilih
@@ -205,6 +205,30 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       return '${formatted.sublist(0, 19).join(', ')}, ... ${formatted.last}';
     }
+  }
+
+  // format nama AMA style
+  String formatAmaAuthors(List<String> authors) {
+    List<String> formatted = [];
+
+    for (var fullName in authors.take(6)) {
+      var parts = fullName.split(' ');
+      if (parts.length < 2) continue;
+
+      String lastName = parts.last;
+      String initials =
+          parts
+              .sublist(0, parts.length - 1)
+              .map((name) => name[0].toUpperCase())
+              .join();
+      formatted.add('$lastName $initials');
+    }
+
+    if (authors.length > 6) {
+      formatted.add('et al.');
+    }
+
+    return formatted.join(', ');
   }
 
   // buka link
@@ -527,7 +551,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 selectedStyle == listStyle[4] ||
                                 selectedStyle == listStyle[5] ||
                                 selectedStyle == listStyle[6]
-                            ? widgetNamaPengarang()
+                            ? widgetNamaPengarang(formatAPAAuthors)
                             : Container(),
                         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                         // list builder untuk item lain
@@ -646,9 +670,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  ListView widgetNamaPengarang() {
+  ListView widgetNamaPengarang(formattedAuthors) {
     return ListView.builder(
       shrinkWrap: true,
+      physics: ScrollPhysics(),
       itemCount: namaPengarangListInput.length,
       itemBuilder: (context, index) {
         // buat ccontroller (buat store value dari list, kalo gak pake controller setiap kali ada tambahan nama pengarang, nama pengarang sebelumnya dihapus dari kotak teks)
@@ -672,7 +697,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         nama_pengarang[index] = controller.text;
                         // panggil fungsi untuk proses nama
                         setState(() {
-                          nama_pengarang_yang_sudah_dirubah = (formatAPAAuthors(
+                          nama_pengarang_yang_sudah_dirubah = (formattedAuthors(
                             nama_pengarang,
                           ));
                         });
@@ -758,6 +783,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ListView widgetStyleAPABuku() {
     return ListView.builder(
       shrinkWrap: true,
+      physics: ScrollPhysics(),
       itemCount: mapStyletoInput[selectedStyle]!.length, // ambil list dari key
       itemBuilder: (context, index) {
         String title = mapStyletoInput[selectedStyle]![index];
