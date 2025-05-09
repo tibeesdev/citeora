@@ -501,93 +501,83 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       backgroundColor: Color(0xFFF8F5F0),
-      body: SingleChildScrollView(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minWidth: 200, maxWidth: 800),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // teks Pembuat daftar pustaka otomatis
-                teksJudul(),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: 200, maxWidth: 800),
+          child: ListView(
+            padding: EdgeInsets.all(10),
+            children: [
+              // teks Pembuat daftar pustaka otomatis
+              teksJudul(),
 
-                // teks cara pembuatan
-                teksSubJudul(),
+              // teks cara pembuatan
+              teksSubJudul(),
 
-                // bagian input user
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey, width: 1),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            Colors.grey
-                                .withValues(), // Warna bayangan dengan tingkat opasitas
-                        spreadRadius:
-                            1.0, // Seberapa jauh bayangan menyebar dari kotak
-                        blurRadius: 5.0, // Tingkat keburaman bayangan
-                        offset: Offset(
-                          0,
-                          2,
-                        ), // Posisi offset bayangan (horizontal, vertikal)
-                      ),
+              // bagian input user
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey, width: 1),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1.0,
+                      blurRadius: 5.0,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      // dropdown di bagian paling atas
+                      dropDownStyleDAPUS(),
+
+                      // list builder khusus untuk nama pengarang
+                      selectedStyle == listStyle[0] ||
+                              selectedStyle == listStyle[2] ||
+                              selectedStyle == listStyle[3] ||
+                              selectedStyle == listStyle[4] ||
+                              selectedStyle == listStyle[5] ||
+                              selectedStyle == listStyle[6]
+                          ? widgetNamaPengarang(formatAPAAuthors)
+                          : Container(),
+                      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                      // list builder untuk item lain
+
+                      // cek stylenya
+                      selectedStyle ==
+                              listStyle[0] // APA buku
+                          ? widgetStyleAPABuku()
+                          : Container(), // ganti kode ini jika mau menambahkan style lain
+                      selectedStyle == listStyle[1]
+                          ? widgetStyleAPABuku()
+                          : Container(), // APA Buku dari organisasi
+                      selectedStyle == listStyle[2]
+                          ? widgetStyleAPABuku()
+                          : Container(), // APA buku terjemahan
+                      selectedStyle == listStyle[3]
+                          ? widgetStyleAPABuku()
+                          : Container(), // APA buku dari jurnal
+                      selectedStyle == listStyle[4]
+                          ? widgetStyleAPABuku()
+                          : Container(), // APA buku dari jurnal
+                      selectedStyle == listStyle[5]
+                          ? widgetStyleAPABuku()
+                          : Container(), // APA buku dari jurnal
+                      selectedStyle == listStyle[6]
+                          ? widgetStyleAPABuku()
+                          : Container(), // APA buku dari jurnal
                     ],
                   ),
-
-                  child: Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        // dropdown di bagian paling atas
-                        dropDownStyleDAPUS(),
-
-                        // list builder khusus untuk nama pengarang
-                        selectedStyle == listStyle[0] ||
-                                selectedStyle == listStyle[2] ||
-                                selectedStyle == listStyle[3] ||
-                                selectedStyle == listStyle[4] ||
-                                selectedStyle == listStyle[5] ||
-                                selectedStyle == listStyle[6]
-                            ? widgetNamaPengarang(formatAPAAuthors)
-                            : Container(),
-                        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                        // list builder untuk item lain
-
-                        // cek stylenya
-                        selectedStyle ==
-                                listStyle[0] // APA buku
-                            ? widgetStyleAPABuku()
-                            : Container(), // ganti kode ini jika mau menambahkan style lain
-                        selectedStyle == listStyle[1]
-                            ? widgetStyleAPABuku()
-                            : Container(), // APA Buku dari organisasi
-                        selectedStyle == listStyle[2]
-                            ? widgetStyleAPABuku()
-                            : Container(), // APA buku terjemahan
-                        selectedStyle == listStyle[3]
-                            ? widgetStyleAPABuku()
-                            : Container(), // APA buku dari jurnal
-                        selectedStyle == listStyle[4]
-                            ? widgetStyleAPABuku()
-                            : Container(), // APA buku dari jurnal
-                        selectedStyle == listStyle[5]
-                            ? widgetStyleAPABuku()
-                            : Container(), // APA buku dari jurnal
-                        selectedStyle == listStyle[6]
-                            ? widgetStyleAPABuku()
-                            : Container(), // APA buku dari jurnal
-                      ],
-                    ),
-                  ),
                 ),
+              ),
 
-                // bagian salin dapus
-                selectedStyle != '' ? widgetSalin(context) : Container(),
-              ],
-            ),
+              // bagian salin dapus
+              selectedStyle != '' ? widgetSalin(context) : Container(),
+            ],
           ),
         ),
       ),
